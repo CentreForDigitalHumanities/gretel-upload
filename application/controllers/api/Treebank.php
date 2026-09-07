@@ -18,7 +18,12 @@ class Treebank extends REST_Controller
     public function download_get($title)
     {
         set_time_limit(0);
-        $treebank = $this->treebank_model->get_treebank_by_title($title, current_user_id());
+        $user = current_user_id();
+        if (!$user) {
+            $this->response(null, 403);
+        }
+
+        $treebank = $this->treebank_model->get_treebank_by_title($title, $user);
 
         if (!$treebank) {
             $this->response(null, 403);
@@ -47,12 +52,16 @@ class Treebank extends REST_Controller
     public function show_get($title)
     {
         $treebank = $this->treebank_model->get_treebank_by_title($title);
-
         if (!$treebank) {
             $this->response();
         }
 
-        $this->response($this->component_model->get_components_by_treebank($treebank->id));
+        $user = current_user_id();
+        if ($treebank->public || $treebank->user_id == $user) {
+            $this->response($this->component_model->get_components_by_treebank($treebank->id));
+        }
+
+        $this->response(null, 403);
     }
 
     /**
@@ -65,25 +74,33 @@ class Treebank extends REST_Controller
     public function metadata_get($title)
     {
         $treebank = $this->treebank_model->get_treebank_by_title($title);
-
         if (!$treebank) {
             $this->response();
         }
 
-        $this->response($this->metadata_model->get_metadata_by_treebank($treebank->id, false));
+        $user = current_user_id();
+        if ($treebank->public || $treebank->user_id == $user) {
+            $this->response($this->metadata_model->get_metadata_by_treebank($treebank->id, false));
+        }
+
+        $this->response(null, 403);
     }
 
     /**
      * Returns all Treebanks for a User.
-     * TODO: limit access to current User.
      * TODO: only return processed Treebanks in GrETEL.
      *
      * @param interger $user_id the ID of the User
      *
      * @return JSON response
      */
-    public function user_get($user_id)
+    public function user_get()
     {
-        $this->response($this->treebank_model->get_treebanks_by_user($user_id));
+        $user = current_user_id();
+        if ($user) {
+            $this->response($this->treebank_model->get_treebanks_by_user($user));
+        }
+
+        $this->response(null, 403);
     }
 }
