@@ -53,6 +53,10 @@ class Login extends MY_Controller
      */
     public function guest()
     {
+        if (!GUEST_USERNAME) {
+            show_error(lang('not_authorized'), 403);
+        }
+
         $user = $this->user_model->get_user_by_username(GUEST_USERNAME);
 
         // If we can't find the User, create a new one
