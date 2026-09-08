@@ -22,12 +22,21 @@ class Component extends REST_Controller
      */
     public function metadata_get($treebank_id, $title)
     {
-        $component = $this->component_model->get_component_by_treebank_title($treebank_id, $title);
-
-        if (!$component) {
+        $treebank = $this->treebank_model->get_treebank_by_id($treebank_id);
+        if (!$treebank) {
             $this->response();
         }
 
-        $this->response($this->metadata_model->get_metadata_by_component($component->id, false));
+        if ($treebank->public || $treebank->user_id == current_user_id()) {
+            $component = $this->component_model->get_component_by_treebank_title($treebank_id, $title);
+
+            if (!$component) {
+                $this->response();
+            }
+
+            $this->response($this->metadata_model->get_metadata_by_component($component->id, false));
+        }
+
+        $this->response(null, 403);
     }
 }
