@@ -52,6 +52,7 @@ class Login extends MY_Controller
             redirect('upload');
         }
         else {
+            $data['error'] = lang('invalid_credentials');
             $this->index();
         }
     }
@@ -116,14 +117,6 @@ class Login extends MY_Controller
      */
     public function password_check($username, $password)
     {
-        $success = $this->user_status->password_check($username, $password);
-
-        if (!$success) {
-            $this->form_validation->set_message('password_check', lang('invalid_credentials'));
-
-            return false;
-        }
-
-        return true;
+        return $this->user_status->password_check($username, $password);
     }
 }
