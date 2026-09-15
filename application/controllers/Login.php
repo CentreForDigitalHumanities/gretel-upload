@@ -41,10 +41,18 @@ class Login extends MY_Controller
     {
         if (!$this->validate()) {
             $this->index();
-        } else {
-            $username = $this->input->post('username');
+            return;
+        }
+
+        $username = $this->input->post('username');
+        $password = $this->input->post('password');
+
+        if ($this->password_check($username, $password)) {
             $this->user_status->login($username);
             redirect('upload');
+        }
+        else {
+            $this->index();
         }
     }
 
@@ -91,7 +99,7 @@ class Login extends MY_Controller
      */
     private function validate()
     {
-        $this->form_validation->set_rules('username', lang('username'), 'required|callback_password_check|alpha_numeric');
+        $this->form_validation->set_rules('username', lang('username'), 'required|alpha_numeric');
         $this->form_validation->set_rules('password', lang('password'), 'required');
 
         return $this->form_validation->run();
@@ -104,13 +112,10 @@ class Login extends MY_Controller
     /**
      * Checks the password against the LDAP database.
      *
-     * @param string $username the supplied username
-     *
      * @return bool whether or not the authentication has succeeded
      */
-    public function password_check($username)
+    public function password_check($username, $password)
     {
-        $password = $this->input->post('password');
         $success = $this->user_status->password_check($username, $password);
 
         if (!$success) {
