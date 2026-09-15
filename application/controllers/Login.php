@@ -25,6 +25,7 @@ class Login extends MY_Controller
 
         $data['page_title'] = lang('login');
         $data['action'] = 'login/submit';
+        $data['error'] = $this->error;
 
         $this->load->view('header', $data);
         $this->load->view('login', $data);
@@ -52,7 +53,7 @@ class Login extends MY_Controller
             redirect('upload');
         }
         else {
-            $data['error'] = lang('invalid_credentials');
+            $this->error = lang('invalid_credentials');
             $this->index();
         }
     }
