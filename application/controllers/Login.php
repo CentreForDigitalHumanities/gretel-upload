@@ -91,7 +91,7 @@ class Login extends MY_Controller
      */
     private function validate()
     {
-        $this->form_validation->set_rules('username', lang('username'), 'required|callback_password_check');
+        $this->form_validation->set_rules('username', lang('username'), 'required|callback_password_check|alpha_numeric');
         $this->form_validation->set_rules('password', lang('password'), 'required');
 
         return $this->form_validation->run();
