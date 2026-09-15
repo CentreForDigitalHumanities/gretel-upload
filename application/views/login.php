@@ -10,6 +10,12 @@
 </div>
 <?php } ?>
 
+<?php if (isset($error)) {?>
+<div class="failed">
+    <?= $error; ?>
+</div>
+<?php } ?>
+
 <?=form_open($action, array('class' => 'pure-form')); ?>
 
 <?=form_input('username', '', array('placeholder' => lang('username'))); ?>

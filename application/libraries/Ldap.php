@@ -65,7 +65,7 @@ class Ldap
             if ($entries['count'] != 0)
             {
                 $binddn = $entries[0]['dn'];
-            
+
                 // Try the given password
                 $result = @ldap_bind($connection, $binddn, $password);
             }
@@ -76,6 +76,9 @@ class Ldap
 
     private function user_filter($username)
     {
+        if (!ctype_alnum($username)) {
+            throw new Exception("Invalid username");
+        }
         return '(' . $this->user_attribute . '=' . $username . ')';
     }
 
@@ -87,7 +90,7 @@ class Ldap
 
         // Bind with the bind account
         $bind = ldap_bind($ldapconn, $this->bind_dn, $this->bind_password);
-        if (!$bind) 
+        if (!$bind)
         {
             $ldapconn = FALSE;
         }

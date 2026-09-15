@@ -25,6 +25,7 @@ class Login extends MY_Controller
 
         $data['page_title'] = lang('login');
         $data['action'] = 'login/submit';
+        $data['error'] = $this->error;
 
         $this->load->view('header', $data);
         $this->load->view('login', $data);
@@ -41,10 +42,19 @@ class Login extends MY_Controller
     {
         if (!$this->validate()) {
             $this->index();
-        } else {
-            $username = $this->input->post('username');
+            return;
+        }
+
+        $username = $this->input->post('username');
+        $password = $this->input->post('password');
+
+        if ($this->password_check($username, $password)) {
             $this->user_status->login($username);
             redirect('upload');
+        }
+        else {
+            $this->error = lang('invalid_credentials');
+            $this->index();
         }
     }
 
@@ -91,7 +101,7 @@ class Login extends MY_Controller
      */
     private function validate()
     {
-        $this->form_validation->set_rules('username', lang('username'), 'required|callback_password_check');
+        $this->form_validation->set_rules('username', lang('username'), 'required|alpha_numeric');
         $this->form_validation->set_rules('password', lang('password'), 'required');
 
         return $this->form_validation->run();
@@ -104,21 +114,10 @@ class Login extends MY_Controller
     /**
      * Checks the password against the LDAP database.
      *
-     * @param string $username the supplied username
-     *
      * @return bool whether or not the authentication has succeeded
      */
-    public function password_check($username)
+    public function password_check($username, $password)
     {
-        $password = $this->input->post('password');
-        $success = $this->user_status->password_check($username, $password);
-
-        if (!$success) {
-            $this->form_validation->set_message('password_check', lang('invalid_credentials'));
-
-            return false;
-        }
-
-        return true;
+        return $this->user_status->password_check($username, $password);
     }
 }
